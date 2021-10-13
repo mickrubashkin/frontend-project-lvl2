@@ -4,6 +4,9 @@ import process from 'process';
 import _ from 'lodash';
 
 export default (filepath1, filepath2, options) => {
+  if (options) {
+    console.log(`formatting options provided: ${options}`);
+  }
   // Resolve file paths
   const wd = process.cwd();
 
@@ -18,15 +21,14 @@ export default (filepath1, filepath2, options) => {
   const json1 = JSON.parse(data1);
   const json2 = JSON.parse(data2);
 
-  // Compare json1 with json2
-
-  // Get json1 keys, sort and store in and array
-  // Get json2 keys, sort and store in and array
-  // Merge keys, and uniq
+  // Get sorted uniq json1 and json2 keys
   const keys1 = Object.keys(json1);
   const keys2 = Object.keys(json2);
   const keys = _.concat(keys1, keys2).sort();
   const uniqKeys = _.uniq(keys);
+
+  // filter, map, reduce?
+
   const diff = [];
 
   uniqKeys.forEach((key) => {
@@ -34,7 +36,6 @@ export default (filepath1, filepath2, options) => {
       const value = json1[key];
       diff.push(`  ${key}: ${value}`);
     } else {
-
       if (_.has(json1, key)) {
         const diffKey = `- ${key}`;
         const value = json1[key];

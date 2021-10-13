@@ -10,7 +10,7 @@
     "node": ">=14.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx jest --bail"
   },
   "repository": {
     "type": "git",
@@ -24,9 +24,16 @@
   },
   "homepage": "https://github.com/mickrubashkin/frontend-project-lvl2#readme",
   "dependencies": {
-    "commander": "^8.2.0"
+    "commander": "^8.2.0",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "lodash": "^4.17.21"
+    "@jest/globals": "^27.2.5",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-jest": "^25.0.5",
+    "jest": "^27.2.5",
+    "jest-cli": "^27.2.5"
   }
 }
