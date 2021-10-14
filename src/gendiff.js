@@ -4,9 +4,6 @@ import process from 'process';
 import _ from 'lodash';
 
 export default (filepath1, filepath2, options) => {
-  if (options) {
-    console.log(`formatting options provided: ${options}`);
-  }
   // Resolve file paths
   const wd = process.cwd();
 
@@ -30,28 +27,34 @@ export default (filepath1, filepath2, options) => {
   // filter, map, reduce?
 
   const diff = [];
+  const diffObj = {};
 
   uniqKeys.forEach((key) => {
     if (_.has(json1, key) && _.has(json2, key) && json1[key] === json2[key]) {
+      const diffKey = `  ${key}`;
       const value = json1[key];
-      diff.push(`  ${key}: ${value}`);
+      diff.push(`${diffKey}: ${value}`);
+      diffObj[diffKey] = value;
     } else {
       if (_.has(json1, key)) {
         const diffKey = `- ${key}`;
         const value = json1[key];
         diff.push(`${diffKey}: ${value}`);
+        diffObj[diffKey] = value;
       }
 
       if (_.has(json2, key)) {
         const diffKey = `+ ${key}`;
         const value = json2[key];
         diff.push(`${diffKey}: ${value}`);
+        diffObj[diffKey] = value;
       }
     }
   });
 
-  const paddedDiff = diff.map((item) => `  ${item}`);
-  const result = `{\n${paddedDiff.join('\n')}\n}`;
+  // const paddedDiff = diff.map((item) => `  ${item}`);
+  // const result = `{\n${paddedDiff.join('\n')}\n}`;
 
-  return result;
+  // return result;
+  return diffObj;
 };
