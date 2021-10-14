@@ -3,7 +3,7 @@ import path from 'path';
 import process from 'process';
 import _ from 'lodash';
 
-export default (filepath1, filepath2, options) => {
+export default (filepath1, filepath2 /* , options */) => {
   // Resolve file paths
   const wd = process.cwd();
 
