@@ -21,40 +21,29 @@ export default (filepath1, filepath2 /* , options */) => {
   // Get sorted uniq json1 and json2 keys
   const keys1 = Object.keys(json1);
   const keys2 = Object.keys(json2);
-  const keys = _.concat(keys1, keys2).sort();
-  const uniqKeys = _.uniq(keys);
+  const uniqKeys = _.union(keys1, keys2);
 
-  // filter, map, reduce?
-
-  const diff = [];
-  const diffObj = {};
+  const diff = {};
 
   uniqKeys.forEach((key) => {
     if (_.has(json1, key) && _.has(json2, key) && json1[key] === json2[key]) {
       const diffKey = `  ${key}`;
       const value = json1[key];
-      diff.push(`${diffKey}: ${value}`);
-      diffObj[diffKey] = value;
+      diff[diffKey] = value;
     } else {
       if (_.has(json1, key)) {
         const diffKey = `- ${key}`;
         const value = json1[key];
-        diff.push(`${diffKey}: ${value}`);
-        diffObj[diffKey] = value;
+        diff[diffKey] = value;
       }
 
       if (_.has(json2, key)) {
         const diffKey = `+ ${key}`;
         const value = json2[key];
-        diff.push(`${diffKey}: ${value}`);
-        diffObj[diffKey] = value;
+        diff[diffKey] = value;
       }
     }
   });
 
-  // const paddedDiff = diff.map((item) => `  ${item}`);
-  // const result = `{\n${paddedDiff.join('\n')}\n}`;
-
-  // return result;
-  return diffObj;
+  return JSON.stringify(diff);
 };

@@ -13,8 +13,8 @@ const readFile = (filename) => readFileSync(getFixturePath(filename), 'utf-8');
 test('gendiff', () => {
   const expectedJsonDiff = readFile('expectedDiff.json');
   const expected = JSON.parse(expectedJsonDiff);
-  const actual = gendiff(getFixturePath('file1.json'), getFixturePath('file2.json'));
-  console.log(expected);
-  console.log(actual);
+  const diff = gendiff(getFixturePath('file1.json'), getFixturePath('file2.json'));
+  console.log(diff);
+  const actual = JSON.parse(diff);
   expect(actual).toEqual(expected);
 });
