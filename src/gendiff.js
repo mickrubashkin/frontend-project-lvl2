@@ -45,5 +45,7 @@ export default (filepath1, filepath2 /* , options */) => {
     }
   });
 
-  return JSON.stringify(diff);
+  console.log(diff);
+
+  return JSON.stringify(diff, null, '  ');
 };
