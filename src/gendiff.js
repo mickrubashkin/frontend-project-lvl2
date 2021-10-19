@@ -2,8 +2,11 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import process from 'process';
 import _ from 'lodash';
+import parse from './parser.js';
 
 export default (filepath1, filepath2 /* , options */) => {
+  // Resolve path => Read file => Parse data => Compare => Format => Print result
+
   // Resolve file paths
   const wd = process.cwd();
 
@@ -14,38 +17,41 @@ export default (filepath1, filepath2 /* , options */) => {
   const data1 = readFileSync(path1, 'utf-8');
   const data2 = readFileSync(path2, 'utf-8');
 
-  // Parse text data to JSON object
-  const json1 = JSON.parse(data1);
-  const json2 = JSON.parse(data2);
+  // Get file type
+  const ext1 = path.parse(path1).ext;
+  const ext2 = path.parse(path2).ext;
 
-  // Get sorted uniq json1 and json2 keys
-  const keys1 = Object.keys(json1);
-  const keys2 = Object.keys(json2);
-  const uniqKeys = _.union(keys1, keys2);
+  // Parse files data
+  const obj1 = parse(data1, ext1);
+  const obj2 = parse(data2, ext2);
 
+  // Compare files
   const diff = {};
 
+  // Get sorted uniq obj1 and obj2 keys
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+  const uniqKeys = _.union(keys1, keys2);
+
   uniqKeys.forEach((key) => {
-    if (_.has(json1, key) && _.has(json2, key) && json1[key] === json2[key]) {
+    if (_.has(obj1, key) && _.has(obj2, key) && obj1[key] === obj2[key]) {
       const diffKey = `  ${key}`;
-      const value = json1[key];
+      const value = obj1[key];
       diff[diffKey] = value;
     } else {
-      if (_.has(json1, key)) {
+      if (_.has(obj1, key)) {
         const diffKey = `- ${key}`;
-        const value = json1[key];
+        const value = obj1[key];
         diff[diffKey] = value;
       }
 
-      if (_.has(json2, key)) {
+      if (_.has(obj2, key)) {
         const diffKey = `+ ${key}`;
-        const value = json2[key];
+        const value = obj2[key];
         diff[diffKey] = value;
       }
     }
   });
-
-  console.log(diff);
 
   return JSON.stringify(diff, null, '  ');
 };

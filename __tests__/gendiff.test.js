@@ -19,5 +19,15 @@ test('gendiff json', () => {
 });
 
 test('gendiff yaml', () => {
-
+  const expected = {
+    '- follow': false,
+    '  host': 'hexlet.io',
+    '- proxy': '123.234.53.22',
+    '- timeout': 50,
+    '+ timeout': 20,
+    '+ verbose': true,
+  };
+  const diff = gendiff(getFixturePath('file1.yml'), getFixturePath('file2.yml'));
+  const actual = JSON.parse(diff);
+  expect(actual).toEqual(expected);
 });

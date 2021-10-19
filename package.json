@@ -25,6 +25,7 @@
   "homepage": "https://github.com/mickrubashkin/frontend-project-lvl2#readme",
   "dependencies": {
     "commander": "^8.2.0",
+    "js-yaml": "^4.1.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
