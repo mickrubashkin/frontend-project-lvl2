@@ -3,8 +3,9 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import process from 'process';
-import parser from './parsers.js';
-import formater from './formatters.js';
+import { getTypeof, hasKey } from './helpers.js';
+import parser from './parser.js';
+import format from './formatters/index.js';
 
 const getFileData = (filePath) => {
   const dirname = process.cwd();
@@ -15,11 +16,11 @@ const getFileData = (filePath) => {
   return { data, ext };
 };
 
-const getTypeof = (data) => Object.prototype.toString.call(data).slice(8, -1).toLowerCase();
+// const getTypeof = (data) => Object.prototype.toString.call(data).slice(8, -1).toLowerCase();
 
 const isPlain = (data) => getTypeof(data) !== 'object';
 
-const hasKey = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+// const hasKey = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 
 const keyAdded = (obj1, obj2, key) => (
   !hasKey(obj1, key) && hasKey(obj2, key)
@@ -54,7 +55,7 @@ const mkdiff = (name, type, value) => ({ name, type, value });
 
 const calcDiff = (obj1, obj2) => {
   const keys = Object.keys({ ...obj1, ...obj2 }).sort();
-  const diffs = keys.map((key) => {
+  const diffKeys = keys.map((key) => {
     const name = key;
     const type = getKeyState(obj1, obj2, key);
     const value = (
@@ -68,7 +69,7 @@ const calcDiff = (obj1, obj2) => {
     return mkdiff(name, type, value);
   });
 
-  const diff = diffs.reduce((acc, item) => {
+  const diff = diffKeys.reduce((acc, item) => {
     const { name, type, value } = item;
     const newAcc = { ...acc };
     newAcc[name] = { type, value };
@@ -79,7 +80,7 @@ const calcDiff = (obj1, obj2) => {
   return diff;
 };
 
-const gendiff = (filepath1, filepath2, format = 'stylish') => {
+const gendiff = (filepath1, filepath2, formatName = 'stylish') => {
   const { data: data1, ext: ext1 } = getFileData(filepath1);
   const { data: data2, ext: ext2 } = getFileData(filepath2);
 
@@ -88,7 +89,7 @@ const gendiff = (filepath1, filepath2, format = 'stylish') => {
 
   const diff = calcDiff(obj1, obj2);
 
-  const formatted = formater(diff, format);
+  const formatted = format(diff, formatName);
 
   return formatted;
 };
