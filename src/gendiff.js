@@ -1,57 +1,96 @@
+/* eslint no-nested-ternary: "off" */
+
 import { readFileSync } from 'fs';
 import path from 'path';
 import process from 'process';
-import _ from 'lodash';
-import parse from './parser.js';
+import parser from './parsers.js';
+import formater from './formatters.js';
 
-export default (filepath1, filepath2 /* , options */) => {
-  // Resolve path => Read file => Parse data => Compare => Format => Print result
+const getFileData = (filePath) => {
+  const dirname = process.cwd();
+  const resolvedPath = path.resolve(dirname, filePath);
+  const data = readFileSync(resolvedPath, 'utf-8');
+  const ext = path.parse(resolvedPath).ext.slice(1);
 
-  // Resolve file paths
-  const wd = process.cwd();
+  return { data, ext };
+};
 
-  const path1 = path.resolve(wd, filepath1);
-  const path2 = path.resolve(wd, filepath2);
+const getTypeof = (data) => Object.prototype.toString.call(data).slice(8, -1).toLowerCase();
 
-  // Get files data
-  const data1 = readFileSync(path1, 'utf-8');
-  const data2 = readFileSync(path2, 'utf-8');
+const isPlain = (data) => getTypeof(data) !== 'object';
 
-  // Get file type
-  const ext1 = path.parse(path1).ext;
-  const ext2 = path.parse(path2).ext;
+const hasKey = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 
-  // Parse files data
-  const obj1 = parse(data1, ext1);
-  const obj2 = parse(data2, ext2);
+const keyAdded = (obj1, obj2, key) => (
+  !hasKey(obj1, key) && hasKey(obj2, key)
+);
 
-  // Compare files
-  const diff = {};
+const keyRemoved = (obj1, obj2, key) => (
+  hasKey(obj1, key) && !hasKey(obj2, key)
+);
 
-  // Get sorted uniq obj1 and obj2 keys
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
-  const uniqKeys = _.union(keys1, keys2);
+const keyUpdated = (obj1, obj2, key) => (
+  hasKey(obj1, key)
+  && hasKey(obj2, key)
+  && (isPlain(obj1[key]) || isPlain(obj2[key]))
+  && (obj1[key] !== obj2[key])
+);
 
-  uniqKeys.forEach((key) => {
-    if (_.has(obj1, key) && _.has(obj2, key) && obj1[key] === obj2[key]) {
-      const diffKey = `  ${key}`;
-      const value = obj1[key];
-      diff[diffKey] = value;
-    } else {
-      if (_.has(obj1, key)) {
-        const diffKey = `- ${key}`;
-        const value = obj1[key];
-        diff[diffKey] = value;
-      }
+const keyUnchanged = (obj1, obj2, key) => (
+  hasKey(obj1, key)
+  && hasKey(obj2, key)
+  && obj1[key] === obj2[key]
+);
 
-      if (_.has(obj2, key)) {
-        const diffKey = `+ ${key}`;
-        const value = obj2[key];
-        diff[diffKey] = value;
-      }
-    }
+const getKeyState = (obj1, obj2, key) => {
+  if (keyAdded(obj1, obj2, key)) return 'added';
+  if (keyRemoved(obj1, obj2, key)) return 'removed';
+  if (keyUpdated(obj1, obj2, key)) return 'updated';
+  if (keyUnchanged(obj1, obj2, key)) return 'unchanged';
+  return 'deep';
+};
+
+const mkdiff = (name, type, value) => ({ name, type, value });
+
+const calcDiff = (obj1, obj2) => {
+  const keys = Object.keys({ ...obj1, ...obj2 }).sort();
+  const diffs = keys.map((key) => {
+    const name = key;
+    const type = getKeyState(obj1, obj2, key);
+    const value = (
+      (type === 'deep') ? calcDiff(obj1[key], obj2[key])
+        : (type === 'added') ? obj2[key]
+          : (type === 'removed') ? obj1[key]
+            : (type === 'updated') ? ({ from: obj1[key], to: obj2[key] })
+              : obj1[key]
+    );
+
+    return mkdiff(name, type, value);
   });
 
-  return JSON.stringify(diff, null, '  ');
+  const diff = diffs.reduce((acc, item) => {
+    const { name, type, value } = item;
+    const newAcc = { ...acc };
+    newAcc[name] = { type, value };
+
+    return newAcc;
+  }, {});
+
+  return diff;
 };
+
+const gendiff = (filepath1, filepath2, format = 'stylish') => {
+  const { data: data1, ext: ext1 } = getFileData(filepath1);
+  const { data: data2, ext: ext2 } = getFileData(filepath2);
+
+  const obj1 = parser(data1, ext1);
+  const obj2 = parser(data2, ext2);
+
+  const diff = calcDiff(obj1, obj2);
+
+  const formatted = formater(diff, format);
+
+  return formatted;
+};
+
+export default gendiff;
