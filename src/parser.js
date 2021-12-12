@@ -1,13 +1,23 @@
 import yaml from 'js-yaml';
 
-export default (data, ext) => {
-  let res;
+const jsonParser = JSON.parse;
+const yamlParser = yaml.load;
 
-  if (ext === 'json') {
-    res = JSON.parse(data);
-  } else if (ext === 'yaml' || ext === 'yml') {
-    res = yaml.load(data);
-  }
-
-  return res;
+const parsers = {
+  json: jsonParser,
+  yaml: yamlParser,
+  yml: yamlParser,
 };
+
+export default (data, ext) => parsers[ext](data);
+// export default (data, ext) => {
+//   let res;
+
+//   if (ext === 'json') {
+//     res = JSON.parse(data);
+//   } else if (ext === 'yaml' || ext === 'yml') {
+//     res = yaml.load(data);
+//   }
+
+//   return res;
+// };
