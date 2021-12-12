@@ -17,6 +17,64 @@ const getFileData = (filePath) => {
 };
 
 const isPlain = (data) => getTypeof(data) !== 'object';
+// const isObj = (data) => getTypeof(data) === 'object';
+
+// const mkdiff = (key, type, props) => {
+//   const {
+//     value,
+//     from,
+//     to,
+//     children,
+//   } = props;
+
+//   if (['added', 'removed', 'unchanged'].includes(type)) {
+//     return ({ [key]: { type, value } });
+//   }
+
+//   if (type === 'updated') {
+//     return ({ [key]: { type, from, to } });
+//   }
+
+//   // if (type === 'nested') {
+//   return ({ [key]: { type, children } });
+//   // }
+// };
+
+// const calcDiff = (source, target) => {
+//   const keys = Object.keys({ ...source, ...target });
+
+//   const diff = [...keys]
+//     .sort()
+//     .map((key) => {
+//       const val1 = source[key];
+//       const val2 = target[key];
+
+//       if (!hasKey(source, key) && hasKey(target, key)) {
+//         return mkdiff(key, 'added', { value: val2 });
+//       }
+
+//       if (hasKey(source, key) && !hasKey(target, key)) {
+//         return mkdiff(key, 'removed', { value: val1 });
+//       }
+
+//       if (val1 === val2) {
+//         return mkdiff(key, 'unchanged', { value: val1 });
+//       }
+
+//       if (isObj(val1) && isObj(val2)) {
+//         const children = calcDiff(val1, val2);
+//         return mkdiff(key, 'deep', { children });
+//       }
+
+//       return mkdiff(key, 'updated', { from: val1, to: val2 });
+//     })
+//     .reduce((acc, item) => {
+//       const newAcc = { ...acc, ...item };
+//       return newAcc;
+//     }, {});
+
+//   return diff;
+// };
 
 const keyAdded = (obj1, obj2, key) => (
   !hasKey(obj1, key) && hasKey(obj2, key)

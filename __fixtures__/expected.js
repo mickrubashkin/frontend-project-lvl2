@@ -10,13 +10,6 @@ export const plain = ''
   + 'Property \'group1.nest\' was updated. From [complex value] to \'str\'\n'
   + 'Property \'group2\' was removed\n'
   + 'Property \'group3\' was added with value: [complex value]';
-// + 'Property \'group4.default\' was updated. From null to \'\'\n'
-// + 'Property \'group4.foo\' was updated. From 0 to null\n'
-// + 'Property \'group4.isNested\' was updated. From false to \'none\'\n'
-// + 'Property \'group4.key\' was added with value: false\n'
-// + 'Property \'group4.nest.isNested\' was removed\n'
-// + 'Property \'group4.someKey\' was added with value: true\n'
-// + 'Property \'group4.type\' was updated. From \'bas\' to \'bar\'\n';
 
 export const stylish = '{\n'
   + '    common: {\n'
@@ -62,3 +55,5 @@ export const stylish = '{\n'
   + '        fee: 100500\n'
   + '    }\n'
   + '}';
+
+export const json = '{"common":{"type":"deep","value":{"follow":{"type":"added","value":false},"setting1":{"type":"unchanged","value":"Value 1"},"setting2":{"type":"removed","value":200},"setting3":{"type":"updated","value":{"from":true,"to":null}},"setting4":{"type":"added","value":"blah blah"},"setting5":{"type":"added","value":{"key5":"value5"}},"setting6":{"type":"deep","value":{"doge":{"type":"deep","value":{"wow":{"type":"updated","value":{"from":"","to":"so much"}}}},"key":{"type":"unchanged","value":"value"},"ops":{"type":"added","value":"vops"}}}}},"group1":{"type":"deep","value":{"baz":{"type":"updated","value":{"from":"bas","to":"bars"}},"foo":{"type":"unchanged","value":"bar"},"nest":{"type":"updated","value":{"from":{"key":"value"},"to":"str"}}}},"group2":{"type":"removed","value":{"abc":12345,"deep":{"id":45}}},"group3":{"type":"added","value":{"deep":{"id":{"number":45}},"fee":100500}}}';
