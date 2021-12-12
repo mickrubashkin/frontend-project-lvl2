@@ -19,7 +19,14 @@ make test
 
 ## Demo
 
-❗️**TODO**: Add asciinema example
+Generate diff for json files
+[![asciicast](https://asciinema.org/a/eBLpoBLhEEpeWBUy5Jx5z6CmG.svg)](https://asciinema.org/a/eBLpoBLhEEpeWBUy5Jx5z6CmG)
+
+Generate diff for yml files, plain format
+[![asciicast](https://asciinema.org/a/D7j1yyjaWM1eyXo5a3dsTMzQ7.svg)](https://asciinema.org/a/D7j1yyjaWM1eyXo5a3dsTMzQ7)
+
+Generate diff for yml or json files, json format
+[![asciicast](https://asciinema.org/a/rJhCYbJTJbDrnTij3VUhOlvlH.svg)](https://asciinema.org/a/rJhCYbJTJbDrnTij3VUhOlvlH)
 
 ---
 [![Hexlet Ltd. logo](https://raw.githubusercontent.com/Hexlet/assets/master/images/hexlet_logo128.png)](https://ru.hexlet.io/pages/about?utm_source=github&utm_medium=link&utm_campaign=nodejs-package)
