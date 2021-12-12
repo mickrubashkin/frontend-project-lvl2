@@ -14,15 +14,17 @@ export default (diff) => {
     const lines = Object
       .entries(data)
       .filter(([, { type }]) => type !== 'unchanged')
-      .map(([key, { type, value }]) => {
-        if (type === 'deep') return iter(value, [...path, key]);
+      .map(([key, { type, value, ...rest }]) => {
+        const { from, to, children } = rest;
 
-        const [val, from, to] = toString([value, value.from, value.to]);
+        if (type === 'nested') return iter(children, [...path, key]);
+
+        const [val, fromVal, toVal] = toString([value, from, to]);
         const fullPath = [...path, key].join('.');
         const str1 = `Property '${fullPath}' was ${type}`;
 
         const str2 = (type === 'updated')
-          ? `${str1}. From ${from} to ${to}`
+          ? `${str1}. From ${fromVal} to ${toVal}`
           : `${str1} with value: ${val}`;
 
         const result = type === 'removed' ? str1 : str2;

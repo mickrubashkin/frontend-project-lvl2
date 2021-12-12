@@ -13,25 +13,25 @@ export default (diff, replacer = ' ', spacesCount = 4) => {
     const lines = Object
       .entries(data)
       .map(([key, val]) => {
-        const type = val.type ?? 'property';
-        const value = val.value ?? val;
+        const {
+          type, value, from, to, children,
+        } = val;
+
         if (type === 'added') {
           return `${addedIndent}${key}: ${iter(value, depth + 1)}`;
         } if (type === 'removed') {
           return `${removedIndent}${key}: ${iter(value, depth + 1)}`;
         } if (type === 'updated') {
-          const val1 = value.from;
-          const val2 = value.to;
-          const line1 = `${removedIndent}${key}: ${iter(val1, depth + 1)}`;
-          const line2 = `${addedIndent}${key}: ${iter(val2, depth + 1)}`;
+          const line1 = `${removedIndent}${key}: ${iter(from, depth + 1)}`;
+          const line2 = `${addedIndent}${key}: ${iter(to, depth + 1)}`;
           return `${line1}\n${line2}`;
         } if (type === 'unchanged') {
           return `${currentIndent}${key}: ${iter(value, depth + 1)}`;
-        } if (type === 'property') {
-          return `${currentIndent}${key}: ${iter(value, depth + 1)}`;
+        } if (!type) {
+          return `${currentIndent}${key}: ${iter(val, depth + 1)}`;
         }
 
-        return `${currentIndent}${key}: ${iter(value, depth + 1)}`;
+        return `${currentIndent}${key}: ${iter(children, depth + 1)}`;
       });
 
     return [

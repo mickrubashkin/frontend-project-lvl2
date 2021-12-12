@@ -17,63 +17,47 @@ const getFileData = (filePath) => {
   return { data, ext };
 };
 
-const isPlain = (data) => getTypeof(data) !== 'object';
+const isObj = (data) => getTypeof(data) === 'object';
 
-const keyAdded = (obj1, obj2, key) => (
-  !hasKey(obj1, key) && hasKey(obj2, key)
-);
+const mkdiff = (name, type, values) => {
+  const diff = {
+    [name]: { type, ...values },
+  };
 
-const keyRemoved = (obj1, obj2, key) => (
-  hasKey(obj1, key) && !hasKey(obj2, key)
-);
-
-const keyUpdated = (obj1, obj2, key) => (
-  hasKey(obj1, key)
-  && hasKey(obj2, key)
-  && (isPlain(obj1[key]) || isPlain(obj2[key]))
-  && (obj1[key] !== obj2[key])
-);
-
-const keyUnchanged = (obj1, obj2, key) => (
-  hasKey(obj1, key)
-  && hasKey(obj2, key)
-  && obj1[key] === obj2[key]
-);
-
-const getKeyState = (obj1, obj2, key) => {
-  if (keyAdded(obj1, obj2, key)) return 'added';
-  if (keyRemoved(obj1, obj2, key)) return 'removed';
-  if (keyUpdated(obj1, obj2, key)) return 'updated';
-  if (keyUnchanged(obj1, obj2, key)) return 'unchanged';
-  return 'deep';
+  return diff;
 };
 
-const mkdiff = (name, type, value) => ({ name, type, value });
-
-const calcDiff = (obj1, obj2) => {
-  const keys = Object.keys({ ...obj1, ...obj2 });
+const calcDiff = (source, target) => {
+  const keys = Object.keys({ ...source, ...target });
   const sortedKeys = _.sortBy(keys);
 
-  const diffKeys = sortedKeys.map((key) => {
-    const name = key;
-    const type = getKeyState(obj1, obj2, key);
-    const value = (
-      (type === 'deep') ? calcDiff(obj1[key], obj2[key])
-        : (type === 'added') ? obj2[key]
-          : (type === 'removed') ? obj1[key]
-            : (type === 'updated') ? ({ from: obj1[key], to: obj2[key] })
-              : obj1[key]
-    );
+  const diff = sortedKeys.map((key) => {
+    const val1 = source[key];
+    const val2 = target[key];
 
-    return mkdiff(name, type, value);
-  });
+    if (!hasKey(source, key) && hasKey(target, key)) {
+      return mkdiff(key, 'added', { value: val2 });
+    }
 
-  const diff = diffKeys.reduce((acc, item) => {
-    const { name, type, value } = item;
-    const newAcc = { ...acc, [name]: { type, value } };
+    if (hasKey(source, key) && !hasKey(target, key)) {
+      return mkdiff(key, 'removed', { value: val1 });
+    }
 
-    return newAcc;
-  }, {});
+    if (val1 === val2) {
+      return mkdiff(key, 'unchanged', { value: val1 });
+    }
+
+    if (isObj(val1) && isObj(val2)) {
+      const children = calcDiff(val1, val2);
+      return mkdiff(key, 'nested', { children });
+    }
+
+    return mkdiff(key, 'updated', { from: val1, to: val2 });
+  })
+    .reduce((acc, item) => {
+      const newAcc = { ...acc, ...item };
+      return newAcc;
+    }, {});
 
   return diff;
 };
