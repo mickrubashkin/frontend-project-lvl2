@@ -1,6 +1,6 @@
 import { getTypeof } from '../helpers.js';
 
-const toString = (...values) => (values
+const toString = (values) => (values
   .map((value) => {
     if (getTypeof(value) === 'string') return `'${value}'`;
     if (getTypeof(value) === 'object') return '[complex value]';
@@ -17,7 +17,7 @@ export default (diff) => {
       .map(([key, { type, value }]) => {
         if (type === 'deep') return iter(value, [...path, key]);
 
-        const [val, from, to] = toString(value, value.from, value.to);
+        const [val, from, to] = toString([value, value.from, value.to]);
         const fullPath = [...path, key].join('.');
         const str1 = `Property '${fullPath}' was ${type}`;
 
