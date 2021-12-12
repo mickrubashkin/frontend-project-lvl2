@@ -3,6 +3,7 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import process from 'process';
+import _ from 'lodash';
 import { getTypeof, hasKey } from './helpers.js';
 import parser from './parser.js';
 import format from './formatters/index.js';
@@ -51,20 +52,21 @@ const mkdiff = (name, type, value) => ({ name, type, value });
 
 const calcDiff = (obj1, obj2) => {
   const keys = Object.keys({ ...obj1, ...obj2 });
-  const diffKeys = [...keys].sort()
-    .map((key) => {
-      const name = key;
-      const type = getKeyState(obj1, obj2, key);
-      const value = (
-        (type === 'deep') ? calcDiff(obj1[key], obj2[key])
-          : (type === 'added') ? obj2[key]
-            : (type === 'removed') ? obj1[key]
-              : (type === 'updated') ? ({ from: obj1[key], to: obj2[key] })
-                : obj1[key]
-      );
+  const sortedKeys = _.sortBy(keys);
 
-      return mkdiff(name, type, value);
-    });
+  const diffKeys = sortedKeys.map((key) => {
+    const name = key;
+    const type = getKeyState(obj1, obj2, key);
+    const value = (
+      (type === 'deep') ? calcDiff(obj1[key], obj2[key])
+        : (type === 'added') ? obj2[key]
+          : (type === 'removed') ? obj1[key]
+            : (type === 'updated') ? ({ from: obj1[key], to: obj2[key] })
+              : obj1[key]
+    );
+
+    return mkdiff(name, type, value);
+  });
 
   const diff = diffKeys.reduce((acc, item) => {
     const { name, type, value } = item;
