@@ -14,8 +14,10 @@ export default (diff) => {
     const lines = Object
       .entries(data)
       .filter(([, { type }]) => type !== 'unchanged')
-      .map(([key, { type, value, ...rest }]) => {
-        const { from, to, children } = rest;
+      .map(([key, props]) => {
+        const {
+          type, value, from, to, children,
+        } = props;
 
         if (type === 'nested') return iter(children, [...path, key]);
 
