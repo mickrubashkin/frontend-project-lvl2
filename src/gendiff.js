@@ -16,11 +16,7 @@ const getFileData = (filePath) => {
   return { data, ext };
 };
 
-// const getTypeof = (data) => Object.prototype.toString.call(data).slice(8, -1).toLowerCase();
-
 const isPlain = (data) => getTypeof(data) !== 'object';
-
-// const hasKey = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 
 const keyAdded = (obj1, obj2, key) => (
   !hasKey(obj1, key) && hasKey(obj2, key)
