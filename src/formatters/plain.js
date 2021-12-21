@@ -1,24 +1,23 @@
-import { getTypeof } from '../helpers.js';
+import _ from 'lodash';
 
-const toString = (values) => (values
-  .map((value) => {
-    if (getTypeof(value) === 'string') return `'${value}'`;
-    if (getTypeof(value) === 'object') return '[complex value]';
+const toString = (values) => (values.map((value) => {
+  if (typeof value === 'string') return `'${value}'`;
+  if (_.isObject(value)) return '[complex value]';
 
-    return value;
-  })
-);
+  return value;
+}));
 
 export default (diff) => {
   const iter = (data, path) => {
-    const lines = Object
-      .entries(data)
-      .filter(([, { type }]) => type !== 'unchanged')
-      .map(([key, props]) => {
-        const {
-          type, value, from, to, children,
-        } = props;
+    const lines = Array.isArray(data)
+      ? data
+      : Object.entries(data).map(([key, value]) => ({ key, value }));
 
+    const plainLines = lines
+      .filter(({ type }) => type !== 'unchanged')
+      .map(({
+        key, type, value, from, to, children,
+      }) => {
         if (type === 'nested') return iter(children, [...path, key]);
 
         const [val, fromVal, toVal] = toString([value, from, to]);
@@ -34,7 +33,7 @@ export default (diff) => {
         return result;
       });
 
-    return lines.join('\n');
+    return plainLines.join('\n');
   };
 
   return iter(diff, []);

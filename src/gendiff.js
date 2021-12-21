@@ -1,79 +1,34 @@
-/* eslint no-nested-ternary: "off" */
-
-import { readFileSync } from 'fs';
+import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import _ from 'lodash';
-import { getTypeof, hasKey } from './helpers.js';
-import parser from './parser.js';
+
+import parse from './parsers/index.js';
+import calculateDiff from './calculateDiff.js';
 import format from './formatters/index.js';
 
-const getFileData = (filePath) => {
-  const dirname = process.cwd();
-  const resolvedPath = path.resolve(dirname, filePath);
-  const data = readFileSync(resolvedPath, 'utf-8');
-  const ext = path.parse(resolvedPath).ext.slice(1);
-
-  return { data, ext };
-};
-
-const isObj = (data) => getTypeof(data) === 'object';
-
-const mkdiff = (name, type, values) => {
-  const diff = {
-    [name]: { type, ...values },
-  };
-
-  return diff;
-};
-
-const calcDiff = (source, target) => {
-  const keys = Object.keys({ ...source, ...target });
-  const sortedKeys = _.sortBy(keys);
-
-  const diff = sortedKeys.map((key) => {
-    const val1 = source[key];
-    const val2 = target[key];
-
-    if (!hasKey(source, key) && hasKey(target, key)) {
-      return mkdiff(key, 'added', { value: val2 });
-    }
-
-    if (hasKey(source, key) && !hasKey(target, key)) {
-      return mkdiff(key, 'removed', { value: val1 });
-    }
-
-    if (val1 === val2) {
-      return mkdiff(key, 'unchanged', { value: val1 });
-    }
-
-    if (isObj(val1) && isObj(val2)) {
-      const children = calcDiff(val1, val2);
-      return mkdiff(key, 'nested', { children });
-    }
-
-    return mkdiff(key, 'updated', { from: val1, to: val2 });
-  })
-    .reduce((acc, item) => {
-      const newAcc = { ...acc, ...item };
-      return newAcc;
-    }, {});
-
-  return diff;
-};
-
 const gendiff = (filepath1, filepath2, formatName = 'stylish') => {
-  const { data: data1, ext: ext1 } = getFileData(filepath1);
-  const { data: data2, ext: ext2 } = getFileData(filepath2);
+  // Resolve file pathes
+  const dirname = process.cwd();
+  const absolutePath1 = path.resolve(dirname, filepath1);
+  const absolutePath2 = path.resolve(dirname, filepath2);
 
-  const obj1 = parser(data1, ext1);
-  const obj2 = parser(data2, ext2);
+  // Get string content from files (handle errors?)
+  const fileContent1 = fs.readFileSync(absolutePath1);
+  const fileFormat1 = path.parse(absolutePath1).ext.slice(1);
+  const fileContent2 = fs.readFileSync(absolutePath2);
+  const fileFormat2 = path.parse(absolutePath2).ext.slice(1);
 
-  const diff = calcDiff(obj1, obj2);
+  // Parse string content to js data object (handle errors?)
+  const data1 = parse(fileContent1, fileFormat1);
+  const data2 = parse(fileContent2, fileFormat2);
 
-  const formatted = format(diff, formatName);
+  // Build diff tree
+  const diff = calculateDiff(data1, data2);
 
-  return formatted;
+  // Convert diff to formatted string
+  const formattedDiffString = format(diff, formatName);
+
+  return formattedDiffString;
 };
 
 export default gendiff;
