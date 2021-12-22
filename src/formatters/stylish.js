@@ -2,7 +2,8 @@ import _ from 'lodash';
 
 export default (diff, replacer = ' ', spacesCount = 4) => {
   const iter = (data, depth) => {
-    if (!_.isObject(data)) return `${data}`;
+    // if (!_.isObject(data)) return `${data}`;
+    if (!_.isObject(data)) return data;
 
     const indentSize = depth * spacesCount;
     const currentIndent = replacer.repeat(indentSize);

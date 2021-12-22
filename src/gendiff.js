@@ -13,9 +13,9 @@ const gendiff = (filepath1, filepath2, formatName = 'stylish') => {
   const absolutePath2 = path.resolve(dirname, filepath2);
 
   // Get string content from files (handle errors?)
-  const fileContent1 = fs.readFileSync(absolutePath1);
+  const fileContent1 = fs.readFileSync(absolutePath1, 'utf-8');
   const fileFormat1 = path.parse(absolutePath1).ext.slice(1);
-  const fileContent2 = fs.readFileSync(absolutePath2);
+  const fileContent2 = fs.readFileSync(absolutePath2, 'utf-8');
   const fileFormat2 = path.parse(absolutePath2).ext.slice(1);
 
   // Parse string content to js data object (handle errors?)
