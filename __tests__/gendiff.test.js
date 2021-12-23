@@ -128,13 +128,11 @@ const diff = [
 
 test('Generates diff recursively for json files', () => {
   const actual = JSON.parse(gendiff(getFixturePath('file1.json'), getFixturePath('file2.json'), 'json'));
-  // const expected = JSON.parse(readFileSync(getFixturePath('json.txt'), 'utf-8'));
   expect(actual).toEqual(diff);
 });
 
 test('Generates diff recursively for yaml files', () => {
   const actual = JSON.parse(gendiff(getFixturePath('file1.yml'), getFixturePath('file2.yml'), 'json'));
-  // const expected = readFileSync(getFixturePath('json.txt'), 'utf-8');
   expect(actual).toEqual(diff);
 });
 
@@ -154,4 +152,28 @@ test('Prints diff in json format', () => {
   const actual = gendiff(getFixturePath('file1.yml'), getFixturePath('file2.yml'), 'json');
   const expected = readFileSync(getFixturePath('json.txt'), 'utf-8');
   expect(actual).toEqual(expected);
+});
+
+test('Handles nonexisting files/paths', () => {
+  const expectedMessage = "ENOENT: no such file or directory, open '/no/such/file.json'";
+  const actual = gendiff('/no/such/file.json', 'file2.json');
+  expect(actual).toEqual(expectedMessage);
+});
+
+test('Handles invalid json/yml files', () => {
+  const expectedMessage = 'Unexpected token } in JSON at position 11';
+  const actual = gendiff(getFixturePath('file1.json'), getFixturePath('invalid.json'));
+  expect(actual).toEqual(expectedMessage);
+});
+
+test('Handles unsupported file types', () => {
+  const expectedMessage = 'Unsupported file type: txt\nSupported formats: json, yaml, yml';
+  const actual = gendiff(getFixturePath('file1.json'), getFixturePath('json.txt'));
+  expect(actual).toEqual(expectedMessage);
+});
+
+test('Handles invalid formatter name', () => {
+  const expectedMessage = 'Unsupported format "fantasy".\nPlease use stylish, plain, or json';
+  const actual = gendiff(getFixturePath('file1.json'), getFixturePath('file2.json'), 'fantasy');
+  expect(actual).toEqual(expectedMessage);
 });
